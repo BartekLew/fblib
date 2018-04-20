@@ -1,3 +1,9 @@
+/* fbgrad: draw gradient using framebuffer.
+   run in console, X11 would overwrite everything immediatelly.
+
+   (c) Lev, 2018, MIT licence
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -57,13 +63,16 @@ int main (int argc, char **argv) {
     if (screen == MAP_FAILED)
         Die ("cannot map frame buffer \"%s\"", fbdev);
 
-    for (uint x = 0; x < vinf.xres; x++) {
-        for (uint y = 0; y < vinf.yres; y++) {
-            uint pix_offset = x * bytes_per_pixel + y * finf.line_length;
-            screen[pix_offset + vinf.red.offset/8] = x * 255 / vinf.xres;
-            screen[pix_offset + vinf.green.offset/8] = y * 255 / vinf.yres;
-            screen[pix_offset + vinf.blue.offset/8] = 0;
+    for (uint t = 0; t < 255; t+=25) {
+        for (uint x = 0; x < vinf.xres; x++) {
+            for (uint y = 0; y < vinf.yres; y++) {
+                uint pix_offset = x * bytes_per_pixel + y * finf.line_length;
+                screen[pix_offset + vinf.red.offset/8] = x * 255 / vinf.xres;
+                screen[pix_offset + vinf.green.offset/8] = y * 255 / vinf.yres;
+                screen[pix_offset + vinf.blue.offset/8] = t;
+            }
         }
+        sleep(1);
     }
 
     munmap (screen, screen_size);
