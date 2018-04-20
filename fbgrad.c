@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+#include <fcntl.h>
+#include <linux/fb.h>
+#include <sys/mman.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+#define fbdev "/dev/fb0"
+
+typedef uint_fast16_t uint;
+
+typedef struct {
+    uint_fast8_t    r, g, b, a;
+} Color;
+
+#define Die(Msg, ...) { \
+    fprintf (stderr, "fbgrad: " Msg ".\n", __VA_ARGS__); \
+    exit(1); \
+}\
+
+#define Assumption(Cond, Msg) \
+    if (!(Cond)) { \
+        fprintf (stderr, "fbgrad: failed assumption: %s\n", Msg);\
+        exit(2);\
+    }
+
+int main (int argc, char **argv) {
+    int fbfd = open (fbdev, O_RDWR);
+    if (fbfd < 0)
+        Die ("cannot open \"%s\"", fbdev);
+
+    struct fb_var_screeninfo vinf;
+    struct fb_fix_screeninfo finf;
+
+    if (ioctl (fbfd, FBIOGET_FSCREENINFO, &finf) == -1)
+        Die ("cannot open fixed screen info for \"%s\"", fbdev);
+
+    if (ioctl (fbfd, FBIOGET_VSCREENINFO, &vinf) == -1)
+        Die ("cannot open variable screen info for \"%s\"", fbdev);
+
+    Assumption ((vinf.red.offset%8) == 0 && (vinf.red.length == 8) &&
+                (vinf.green.offset%8) == 0 && (vinf.green.length == 8) &&
+                (vinf.blue.offset%8) == 0 && (vinf.blue.length == 8) &&
+                (vinf.transp.offset) == 0 && (vinf.transp.length == 0) &&
+                vinf.red.msb_right == 0 &&
+                vinf.green.msb_right == 0 &&
+                vinf.blue.msb_right == 0,
+                "Color masks are 8bit, byte aligned, little endian, no transparency."
+    );
+
+    size_t screen_size = finf.line_length * vinf.yres;
+    size_t bytes_per_pixel = vinf.bits_per_pixel / 8;
+    char *screen = mmap (0, screen_size, PROT_READ | PROT_WRITE, MAP_SHARED, fbfd, 0);
+    if (screen == MAP_FAILED)
+        Die ("cannot map frame buffer \"%s\"", fbdev);
+
+    for (uint x = 0; x < vinf.xres; x++) {
+        for (uint y = 0; y < vinf.yres; y++) {
+            uint pix_offset = x * bytes_per_pixel + y * finf.line_length;
+            screen[pix_offset + vinf.red.offset/8] = x * 255 / vinf.xres;
+            screen[pix_offset + vinf.green.offset/8] = y * 255 / vinf.yres;
+            screen[pix_offset + vinf.blue.offset/8] = 0;
+        }
+    }
+
+    munmap (screen, screen_size);
+    close (fbfd);
+
+    return EXIT_SUCCESS;
+}
