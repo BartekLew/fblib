@@ -10,11 +10,13 @@
 
 #include <fcntl.h>
 #include <linux/fb.h>
+#include <linux/kd.h>
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 
 #define fbdev "/dev/fb0"
+#define ttydev "/dev/tty"
 
 typedef uint_fast16_t uint;
 
@@ -34,6 +36,13 @@ typedef struct {
     }
 
 int main (int argc, char **argv) {
+    int ttyfd = open (ttydev, O_RDWR);
+    if (ttyfd < 0)
+        Die ("cannot open \"%s\"", ttydev);
+
+    if (ioctl (ttyfd, KDSETMODE, KD_GRAPHICS) == -1)
+        Die ("cannot set tty into graphics mode on \"%s\"", ttydev);
+
     int fbfd = open (fbdev, O_RDWR);
     if (fbfd < 0)
         Die ("cannot open \"%s\"", fbdev);
@@ -75,7 +84,12 @@ int main (int argc, char **argv) {
     }
 
     munmap (screen, screen_size);
+
+    if (ioctl (ttyfd, KDSETMODE, KD_TEXT) == -1)
+        Die ("cannot set tty into text mode on \"%s\"", ttydev);
+
     close (fbfd);
+    close (ttyfd);
 
     return EXIT_SUCCESS;
 }
