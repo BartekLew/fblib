@@ -64,8 +64,8 @@ int main (int argc, char **argv) {
         Die ("cannot map frame buffer \"%s\"", fbdev);
 
     for (uint t = 0; t < 255; t+=25) {
-        for (uint x = 0; x < vinf.xres; x++) {
-            for (uint y = 0; y < vinf.yres; y++) {
+        for (uint y = 0; y < vinf.yres; y++) {
+            for (uint x = 0; x < vinf.xres; x++) {
                 uint pix_offset = x * bytes_per_pixel + y * finf.line_length;
                 screen[pix_offset + vinf.red.offset/8] = x * 255 / vinf.xres;
                 screen[pix_offset + vinf.green.offset/8] = y * 255 / vinf.yres;
