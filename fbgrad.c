@@ -14,6 +14,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <time.h>
 
 #define fbdev "/dev/fb0"
 #define ttydev "/dev/tty"
@@ -72,6 +73,8 @@ int main (int argc, char **argv) {
     if (screen == MAP_FAILED)
         Die ("cannot map frame buffer \"%s\"", fbdev);
 
+    int time_start = time (NULL);
+
     for (uint t = 0; t < 255; t++) {
         for (uint y = 0; y < vinf.yres; y++) {
             for (uint x = 0; x < vinf.xres; x++) {
@@ -83,6 +86,8 @@ int main (int argc, char **argv) {
         }
     }
 
+    int time_end = time(NULL);
+
     munmap (screen, screen_size);
 
     if (ioctl (ttyfd, KDSETMODE, KD_TEXT) == -1)
@@ -90,6 +95,8 @@ int main (int argc, char **argv) {
 
     close (fbfd);
     close (ttyfd);
+
+    printf ("FPS: %.2f.\n", 255.0 / (time_end - time_start));
 
     return EXIT_SUCCESS;
 }
