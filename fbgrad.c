@@ -63,7 +63,7 @@ int main (int argc, char **argv) {
     if (screen == MAP_FAILED)
         Die ("cannot map frame buffer \"%s\"", fbdev);
 
-    for (uint t = 0; t < 255; t+=25) {
+    for (uint t = 0; t < 255; t++) {
         for (uint y = 0; y < vinf.yres; y++) {
             for (uint x = 0; x < vinf.xres; x++) {
                 uint pix_offset = x * bytes_per_pixel + y * finf.line_length;
@@ -72,7 +72,6 @@ int main (int argc, char **argv) {
                 screen[pix_offset + vinf.blue.offset/8] = t;
             }
         }
-        sleep(1);
     }
 
     munmap (screen, screen_size);
