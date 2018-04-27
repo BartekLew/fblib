@@ -67,7 +67,7 @@ int main (int argc, char **argv) {
     if (s.buffer == MAP_FAILED)
         Die ("cannot map frame buffer \"%s\"", fbdev);
 
-    fb_main(s);
+    fb_main(s, (Strings){ .count = argc, .vals = argv });
 
     munmap (s.buffer, s.size);
 

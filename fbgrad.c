@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <time.h>
 
-void fb_main (Screen s) {
+int fb_main (Screen s, Strings args) {
     int time_start = time (NULL);
 
     for (uint t = 0; t < 256; t++) {
@@ -26,4 +26,5 @@ void fb_main (Screen s) {
     int time_end = time(NULL);
 
     printf ("FPS: %.2f.\n", 255.0 / (time_end - time_start));
+    return 0;
 }

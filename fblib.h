@@ -23,8 +23,12 @@ typedef struct {
     uint_fast8_t    r, g, b, a;
 } Color;
 
+typedef struct {
+    uint	count;
+    char	*vals;
+} Strings;
 
 // This is the entry point of your application:
-extern void fb_main(Screen s);
+extern int fb_main(Screen s, Strings args);
 
 #endif
