@@ -7,6 +7,9 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
+#include <signal.h>
+		
+#define UNUSED(Var) (void)Var
 
 #define Die(Msg, ...) { \
     fprintf (stderr, "fbgrad: " Msg ".\n", __VA_ARGS__); \
@@ -19,15 +22,32 @@
         exit(2);\
     }
 
+
+int ttyfd, fbfd;
+Screen s;
+
+void cleanup (int signum) {
+    UNUSED(signum);
+    
+    munmap (s.buffer, s.size);
+
+    if (ioctl (ttyfd, KDSETMODE, KD_TEXT) == -1)
+        Die ("cannot set tty into text mode on \"%s\"", ttydev);
+
+    close (ttyfd);
+    close (fbfd);
+}
+
 int main (int argc, char **argv) {
-    int ttyfd = open (ttydev, O_RDWR);
-    if (ttyfd < 0)
+    signal (SIGINT, cleanup);
+    signal (SIGSEGV, cleanup);
+
+    ttyfd = open (ttydev, O_RDWR); if (ttyfd < 0)
         Die ("cannot open \"%s\"", ttydev);
 
     if (ioctl (ttyfd, KDSETMODE, KD_GRAPHICS) == -1)
         Die ("cannot set tty into graphics mode on \"%s\"", ttydev);
-
-    int fbfd = open (fbdev, O_RDWR);
+    fbfd = open (fbdev, O_RDWR);
     if (fbfd < 0)
         Die ("cannot open \"%s\"", fbdev);
 
@@ -51,7 +71,7 @@ int main (int argc, char **argv) {
                 "Color masks are 8bit, byte aligned, little endian, no transparency."
     );
 
-    Screen s = {
+    s = (Screen) {
         .size            = finf.line_length * vinf.yres,
         .bytes_per_pixel = vinf.bits_per_pixel / 8,
         .bytes_per_line  = finf.line_length,
@@ -69,13 +89,7 @@ int main (int argc, char **argv) {
 
     fb_main(s, (Strings){ .count = argc, .vals = argv });
 
-    munmap (s.buffer, s.size);
-
-    if (ioctl (ttyfd, KDSETMODE, KD_TEXT) == -1)
-        Die ("cannot set tty into text mode on \"%s\"", ttydev);
-
-    close (fbfd);
-    close (ttyfd);
+    cleanup(0);
 
     return EXIT_SUCCESS;
 }

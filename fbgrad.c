@@ -15,10 +15,10 @@ int fb_main (Screen s, Strings args) {
     for (uint t = 0; t < 256; t++) {
          for (uint y = 0; y < s.height; y++) {
              for (uint x = 0; x < s.width; x++) {
-                 uint pix_offset = x * s.bytes_per_pixel + y * s.bytes_per_line;
-                 s.buffer[pix_offset + s.red] = x * 255 / s.width;
-                 s.buffer[pix_offset + s.green] = y * 255 / s.height;
-                 s.buffer[pix_offset + s.blue] = t;
+		 dot_rgb (s, x, y,
+			x * 255 / s.width,
+			y * 255 / s.height,
+			t );
              }
          }
     }
