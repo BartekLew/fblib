@@ -31,10 +31,13 @@ void cleanup (int signum) {
     
     munmap (s.buffer, s.size);
 
+#ifdef GRAB_TTY
     if (ioctl (ttyfd, KDSETMODE, KD_TEXT) == -1)
         Die ("cannot set tty into text mode on \"%s\"", ttydev);
 
     close (ttyfd);
+#endif
+
     close (fbfd);
 }
 
@@ -42,11 +45,14 @@ int main (int argc, char **argv) {
     signal (SIGINT, cleanup);
     signal (SIGSEGV, cleanup);
 
+#ifdef GRAB_TTY
     ttyfd = open (ttydev, O_RDWR); if (ttyfd < 0)
         Die ("cannot open \"%s\"", ttydev);
 
     if (ioctl (ttyfd, KDSETMODE, KD_GRAPHICS) == -1)
         Die ("cannot set tty into graphics mode on \"%s\"", ttydev);
+#endif
+
     fbfd = open (fbdev, O_RDWR);
     if (fbfd < 0)
         Die ("cannot open \"%s\"", fbdev);
