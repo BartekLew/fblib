@@ -5,30 +5,29 @@ ifeq (${DEBUG}, 1)
 	FLAGS=-g -DDEBUG
 endif
 
-all: info fblib.a fbgrad fbrec fbd
+all: info lib/fblib.a bin/fbgrad bin/fbrec bin/fbd
 
-%.a: %.o
-	ar rcs $@ $<
+lib/%.a: o/%.o
+	@ar rcs $@ $<
+	@echo "\tLIB\t$^\t-> $@"
 
-%.o: %.c %.h
-	${CC} ${FLAGS} ${OPTS} -c $< -o $@
+o/%.o: %.c %.h
+	@${CC} ${FLAGS} ${OPTS} -c $< -o $@
+	@echo "\tOBJ\t$^\t-> $@"
 
-fbgrad: fblib.a fbgrad.o
-	${CC} ${FLAGS} ${OPTS} $^ -o $@
-
-fbrec: fblib.a fbrec.o
-	${CC} ${FLAGS} ${OPTS} $^ -o $@
-
-fbd: fblib.a fbd.o
-	${CC} ${FLAGS} ${OPTS} $^ -o $@
+bin/%: %.c lib/fblib.a
+	@${CC} ${FLAGS} ${OPTS} $^ -o $@
+	@echo "\tEXE\t$^\t-> $@"
 
 info:
 	@echo "CC	= ${CC}"
 	@echo "FLAGS	= ${FLAGS}"
 	@echo
+	@mkdir -p o/ bin/ lib/
 
 clean:
-	rm fbgrad fblib.a fbgrad.o
+	@rm o/* bin/* lib/* || true
+	@echo "clean"
 
 rebuild: clean all
 

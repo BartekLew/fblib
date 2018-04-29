@@ -33,6 +33,15 @@ static inline void dot_rgb (Screen s, uint x, uint y, uint r, uint g, uint b) {
     s.buffer[pix_offset + s.blue] = b;
 }
 
+static inline Color get_rgb (Screen s, uint x, uint y) {
+    uint pix_offset = x * s.bytes_per_pixel + y * s.bytes_per_line;
+    return (Color) {
+		.r = s.buffer[pix_offset + s.red],
+		.g = s.buffer[pix_offset + s.green],
+		.b = s.buffer[pix_offset + s.blue]
+    };
+}
+
 // This is the entry point of your application:
 extern int fb_main(Screen s, Strings args);
 
