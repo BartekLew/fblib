@@ -11,17 +11,22 @@
 #define Die(Format, ...) \
 	{ \
 		fprintf (stderr, "%s:%u " Format, __FILE__, __LINE__,  __VA_ARGS__); \
-		return -1; \
+		exit(-1); \
 	}
 	
+FILE *choose_input (Strings args) {
+	if (args.count == 1)
+		return stdin;
+
+	FILE *result = fopen (args.vals[1], "r");
+	if (result == NULL)
+		Die ("no file to read: %s\n", args.vals[1]);
+
+	return result;
+}
 
 int fb_main (Screen s, Strings args) {
-	if (args.count < 2)
-		Die ("lacking parameters: %s\n", "name");
-	
-	FILE *input = fopen (args.vals[1], "r");
-	if (input == NULL)
-		Die ("no file to read: %s\n", args.vals[1]);
+	FILE *input = choose_input(args);
 	
 	Screen header;
 	if (fread (&header, sizeof(Screen), 1, input) < 1)
@@ -31,17 +36,15 @@ int fb_main (Screen s, Strings args) {
 		Die ("%s\n", "wrong format");
 
 	int time_start = time (NULL);
+	uint frames = 0;
 
-	for (uint i = 0; i < 0x100; i++) {
-		if (fread (s.buffer, s.size, 1, input) < 1)
-			Die ("%s\n", "end of input");
-	}
+	while (fread (s.buffer, s.size, 1, input) >= 1) frames++;
 
 	int time_end = time(NULL);
 
 	fclose (input);
 
-	printf ("FPS: %.2f\n", (float)0x100 / (time_end-time_start));
+	printf ("FPS: %.2f\n", (float)frames / (time_end-time_start));
 
 	return 0;
 }
