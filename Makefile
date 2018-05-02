@@ -5,7 +5,7 @@ ifeq (${DEBUG}, 1)
 	FLAGS=-g -DDEBUG
 endif
 
-all: info lib/fblib.a bin/fbgrad bin/fbrec bin/fbd
+all: info lib/fblib.a bin/fbgrad bin/fbrec bin/fbd util/fb2ppm
 
 lib/%.a: o/%.o
 	@ar rcs $@ $<
@@ -19,11 +19,15 @@ bin/%: %.c lib/fblib.a
 	@${CC} ${FLAGS} ${OPTS} $^ -o $@
 	@echo "\tEXE\t$^\t-> $@"
 
+util/%: %.c
+	@${CC} ${FLAGS} ${OPTS} $^ -o $@
+	@echo "\tEXE\t$^\t-> $@"
+
 info:
 	@echo "CC	= ${CC}"
 	@echo "FLAGS	= ${FLAGS}"
 	@echo
-	@mkdir -p o/ bin/ lib/
+	@mkdir -p o/ bin/ lib/ util/
 
 clean:
 	@rm o/* bin/* lib/* || true
