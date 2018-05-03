@@ -1,8 +1,3 @@
-/* fbd: display image
-
-   (c) Lev, 2018, MIT licence
-*/
-
 #include "fblib.h"
 
 #include <stdio.h>

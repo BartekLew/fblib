@@ -1,9 +1,3 @@
-/* fbgrad: draw gradient using framebuffer.
-   run in console, X11 would overwrite everything immediatelly.
-
-   (c) Lev, 2018, MIT licence
-*/
-
 #include "fblib.h"
 
 #include <stdio.h>

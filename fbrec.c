@@ -1,8 +1,3 @@
-/* fbrec: record frame buffer state
-
-   (c) Lev, 2018, MIT licence
-*/
-
 #include "fblib.h"
 
 #include <stdio.h>
