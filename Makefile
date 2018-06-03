@@ -36,7 +36,7 @@ install:
 	cp util/* ${OUTDIR}
 
 clean:
-	@rm bin/* lib/* || true
+	@rm bin/* lib/* util/* || true
 	@echo "clean"
 
 rebuild: clean all
