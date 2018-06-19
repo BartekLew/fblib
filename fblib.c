@@ -69,12 +69,11 @@ int main (int argc, char **argv) {
     Assumption ((vinf.red.offset%8) == 0 && (vinf.red.length == 8) &&
                 (vinf.green.offset%8) == 0 && (vinf.green.length == 8) &&
                 (vinf.blue.offset%8) == 0 && (vinf.blue.length == 8) &&
-                (vinf.transp.offset) == 0 && (vinf.transp.length == 0) &&
                 vinf.xoffset == 0 && vinf.yoffset == 0 &&
                 vinf.red.msb_right == 0 &&
                 vinf.green.msb_right == 0 &&
                 vinf.blue.msb_right == 0,
-                "Color masks are 8bit, byte aligned, little endian, no transparency."
+                "Color masks are 8bit, byte aligned, little endian."
     );
 
     s = (Screen) {
